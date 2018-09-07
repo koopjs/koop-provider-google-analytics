@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "source ./test/env-vars-test.sh && standard && tape test/*.js | tap-spec"
+    "test": "standard && tape test/*.js | tap-spec"
   },
   "dependencies": {
     "config": "^1.25.1",
