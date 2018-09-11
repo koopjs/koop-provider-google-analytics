@@ -6,10 +6,3 @@ cache:
 - node_modules
 script:
 - npm test
-env:
-  global:
-  - NODE_ENV=test
-  - GOOGLE_CLIENT_EMAIL=dGVzdAo=
-  - GOOGLE_PRIVATE_KEY=dGVzdAo=
-  - GOOGLE_VIEW_ID=test
-  - GOOGLE_ANALYTICS_TIMEZONE=America/New_York
