@@ -1,0 +1,419 @@
+{
+    "data": {
+        "reports":[
+            {
+                "columnHeader": {
+                "dimensions": [
+                    "ga:date"
+                ],
+                "metricHeader": {
+                    "metricHeaderEntries": [
+                    {
+                        "name": "ga:pageviews",
+                        "type": "INTEGER"
+                    }
+                    ]
+                }
+                },
+                "data": {
+                "rows": [
+                    {
+                    "dimensions": [
+                        "20180620"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "90136"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180621"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "83112"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180622"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "70452"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180623"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "21936"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180624"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "27108"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180625"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "85656"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180626"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "87858"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180627"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "84696"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180628"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "79307"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180629"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "63491"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180630"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "21122"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180701"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "26983"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180702"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "75345"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180703"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "83646"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180704"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "45147"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180705"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "79073"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180706"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "63852"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180707"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "22143"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180708"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "26719"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180709"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "85563"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180710"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "91502"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180711"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "84291"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180712"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "82915"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180713"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "65726"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180714"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "23044"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180715"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "26322"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180716"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "87015"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180717"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "89870"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180718"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "88510"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180719"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "83097"
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    "dimensions": [
+                        "20180720"
+                    ],
+                    "metrics": [
+                        {
+                        "values": [
+                            "8846"
+                        ]
+                        }
+                    ]
+                    }
+                ],
+                "totals": [
+                    {
+                    "values": [
+                        "1954483"
+                    ]
+                    }
+                ],
+                "rowCount": 31,
+                "minimums": [
+                    {
+                    "values": [
+                        "8846"
+                    ]
+                    }
+                ],
+                "maximums": [
+                    {
+                    "values": [
+                        "91502"
+                    ]
+                    }
+                ]
+                }
+            }
+        ]
+    }
+}

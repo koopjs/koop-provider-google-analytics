@@ -1,0 +1,137 @@
+const test = require('tape')
+const { whereDecomposer } = require('../src/where')
+
+test('whereDecomposer - single metric predicate', t => {
+  t.plan(6)
+  let result = whereDecomposer(`views = 100`)
+  t.notOk(result.error)
+  t.equals(result.metricFilters.filters.length, 1)
+  t.equals(result.dimensionFilters.filters.length, 0)
+  t.equals(result.metricFilters.filters[0].key, 'views')
+  t.equals(result.metricFilters.filters[0].value, 100)
+  t.equals(result.metricFilters.filters[0].operator, '=')
+})
+
+test('whereDecomposer - single dimension predicate', t => {
+  t.plan(6)
+  let result = whereDecomposer(`country = 'United States'`)
+  t.notOk(result.error)
+  t.equals(result.dimensionFilters.filters.length, 1)
+  t.equals(result.metricFilters.filters.length, 0)
+  t.equals(result.dimensionFilters.filters[0].key, 'country')
+  t.equals(result.dimensionFilters.filters[0].value, 'United States')
+  t.equals(result.dimensionFilters.filters[0].operator, '=')
+})
+
+test('whereDecomposer - single dimension predicate, trailing column', t => {
+  t.plan(6)
+  let result = whereDecomposer(`'United States'=country`)
+  t.notOk(result.error)
+  t.equals(result.dimensionFilters.filters.length, 1)
+  t.equals(result.metricFilters.filters.length, 0)
+  t.equals(result.dimensionFilters.filters[0].key, 'country')
+  t.equals(result.dimensionFilters.filters[0].value, 'United States')
+  t.equals(result.dimensionFilters.filters[0].operator, '=')
+})
+
+test('whereDecomposer - multiple (metric) predicates combined with AND', t => {
+  t.plan(10)
+  let result = whereDecomposer(`views = 100 AND sessions = 10`)
+  t.notOk(result.error)
+  t.equals(result.metricFilters.filters.length, 2)
+  t.equals(result.dimensionFilters.filters.length, 0)
+  t.equals(result.metricFilters.filters[0].key, 'views')
+  t.equals(result.metricFilters.filters[0].value, 100)
+  t.equals(result.metricFilters.filters[0].operator, '=')
+  t.equals(result.metricFilters.filters[1].key, 'sessions')
+  t.equals(result.metricFilters.filters[1].value, 10)
+  t.equals(result.metricFilters.filters[1].operator, '=')
+  t.equals(result.metricFilters.operator, 'AND')
+})
+
+test('whereDecomposer - multiple (metric) predicates combined with OR', t => {
+  t.plan(10)
+  let result = whereDecomposer(`views = 100 OR sessions = 10`)
+  t.notOk(result.error)
+  t.equals(result.metricFilters.filters.length, 2)
+  t.equals(result.dimensionFilters.filters.length, 0)
+  t.equals(result.metricFilters.filters[0].key, 'views')
+  t.equals(result.metricFilters.filters[0].value, 100)
+  t.equals(result.metricFilters.filters[0].operator, '=')
+  t.equals(result.metricFilters.filters[1].key, 'sessions')
+  t.equals(result.metricFilters.filters[1].value, 10)
+  t.equals(result.metricFilters.filters[1].operator, '=')
+  t.equals(result.metricFilters.operator, 'OR')
+})
+
+test('whereDecomposer - multiple (metric and dimension) predicates combined with AND', t => {
+  t.plan(9)
+  let result = whereDecomposer(`views = 100 AND country = 'United States'`)
+  t.notOk(result.error)
+  t.equals(result.metricFilters.filters.length, 1)
+  t.equals(result.dimensionFilters.filters.length, 1)
+  t.equals(result.metricFilters.filters[0].key, 'views')
+  t.equals(result.metricFilters.filters[0].value, 100)
+  t.equals(result.metricFilters.filters[0].operator, '=')
+  t.equals(result.dimensionFilters.filters[0].key, 'country')
+  t.equals(result.dimensionFilters.filters[0].value, 'United States')
+  t.equals(result.dimensionFilters.filters[0].operator, '=')
+})
+
+test('whereDecomposer - multiple metric and dimension predicates', t => {
+  t.plan(17)
+  let result = whereDecomposer(`(views = 100 AND sessions = 10) AND (country = 'United States' OR country = 'Canada')`)
+  t.notOk(result.error)
+  t.equals(result.metricFilters.filters.length, 2)
+  t.equals(result.dimensionFilters.filters.length, 2)
+  t.equals(result.metricFilters.filters[0].key, 'views')
+  t.equals(result.metricFilters.filters[0].value, 100)
+  t.equals(result.metricFilters.filters[0].operator, '=')
+  t.equals(result.metricFilters.filters[1].key, 'sessions')
+  t.equals(result.metricFilters.filters[1].value, 10)
+  t.equals(result.metricFilters.filters[1].operator, '=')
+  t.equals(result.metricFilters.operator, 'AND')
+  t.equals(result.dimensionFilters.filters[0].key, 'country')
+  t.equals(result.dimensionFilters.filters[0].value, 'United States')
+  t.equals(result.dimensionFilters.filters[0].operator, '=')
+  t.equals(result.dimensionFilters.filters[1].key, 'country')
+  t.equals(result.dimensionFilters.filters[1].value, 'Canada')
+  t.equals(result.dimensionFilters.filters[1].operator, '=')
+  t.equals(result.dimensionFilters.operator, 'OR')
+})
+
+test('whereDecomposer - fail with invalid SQL', t => {
+  t.plan(1)
+  let result = whereDecomposer(`views = 100 country = 'United States'`)
+  t.ok(result.error)
+})
+
+test('whereDecomposer - fail with unsupported key name', t => {
+  t.plan(1)
+  let result = whereDecomposer(`iews = 100`)
+  t.ok(result.error)
+})
+
+test('whereDecomposer - fail with unsupported operator', t => {
+  t.plan(1)
+  let result = whereDecomposer(`itemId IN ('01', '03')`)
+  t.ok(result.error)
+})
+
+test('whereDecomposer - fail when combining metric and dimensions with OR', t => {
+  t.plan(1)
+  let result = whereDecomposer(`views = 100 OR country = 'United States'`)
+  t.ok(result.error)
+})
+
+test('whereDecomposer - fail when combining metrics with multiple logical operators', t => {
+  t.plan(1)
+  let result = whereDecomposer(`views = 100 OR views = 1000 AND sessions = 10`)
+  t.ok(result.error)
+})
+
+test('whereDecomposer - fail when combining metrics with multiple logical operators', t => {
+  t.plan(1)
+  let result = whereDecomposer(`(views = 100 OR views = 1000 AND sessions = 10) AND (country = 'United States')`)
+  t.ok(result.error)
+})
