@@ -9,7 +9,6 @@
   "scripts": {
     "start": "node server.js",
     "test": "standard && tape test/*.js | tap-spec",
-    "release": "gh-release",
     "clean": "rm -rf dist",
     "compile": "buble -i src -o dist"
   },
@@ -42,7 +41,7 @@
   "bugs": {
     "url": "https://github.com/ArcGIS/koop-provider-metrics/issues"
   },
-  "homepage": "https://github.com/ArcGIS/koop-provider-metrics",
+  "homepage": "https://github.com/koopjs/koop-provider-google-analytics",
   "keywords": [
     "koop",
     "provider"
