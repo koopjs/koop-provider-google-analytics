@@ -5,8 +5,8 @@ let config = {}
 config.goog = Object.freeze({
   analyticsTimezone: 'America/New_York',
   viewId: 'ABCDEFG',
-  privateKey: Buffer.from(process.env.GOOGLE_PRIVATE_KEY, 'base64').toString(),
-  clientEmail: Buffer.from(process.env.GOOGLE_CLIENT_EMAIL, 'base64').toString(),
+  privateKey: process.env.GOOGLE_PRIVATE_KEY,
+  clientEmail: process.env.GOOGLE_CLIENT_EMAIL,
   startDate: '2010-01-01',
   dimensions: {
     'ga:sessionCount': 'sessionCount'
