@@ -52,7 +52,7 @@ const model = new Model()
 test('should properly translate features from Google Analystics API response to GeoJSON - 30 day time-series', t => {
   t.plan(11)
   model.getData({params: {host: 'views', id: 'day'}, query: {time: '2018-06-20,2018-07-20'}}, (err, geojson) => {
-    t.equal(err, null)
+    t.notOk(err)
     t.equal(geojson.type, 'FeatureCollection')
     t.ok(geojson.features)
     t.ok(geojson.metadata)
