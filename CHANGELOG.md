@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+# Unreleased
+### Fixed
+* Replace base64 decoding of private key. Needed for all deployments.
+
 ## [1.1.0] - 2018-10-04
 ### Changed
 * Remove base64 decoding of private key and client email
