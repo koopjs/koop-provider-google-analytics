@@ -5,7 +5,7 @@ let config = {}
 config.goog = Object.freeze({
   analyticsTimezone: 'America/New_York',
   viewId: 'ABCDEFG',
-  privateKey: process.env.GOOGLE_PRIVATE_KEY,
+  privateKey: process.env.GOOGLE_PRIVATE_KEY, // must be base64 encoded
   clientEmail: process.env.GOOGLE_CLIENT_EMAIL,
   startDate: '2010-01-01',
   dimensions: {
