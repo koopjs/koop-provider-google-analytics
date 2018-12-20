@@ -15,7 +15,8 @@ const googleDimensions = Object.assign({
   'ga:eventAction': 'eventAction',
   'ga:eventLabel': 'eventLabel',
   'ga:country': 'country',
-  'ga:countryIsoCode': 'countryIsoCode'
+  'ga:countryIsoCode': 'countryIsoCode',
+  'ga:hostname': 'hostname'
 }, customNonTimeDimensions)
 
 const googleMetrics = Object.assign({

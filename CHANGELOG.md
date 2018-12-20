@@ -2,8 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+* Add hostname as a supported Google Analytics dimension
+
 ## [1.1.2] - 2018-10-05
-## Fixed
+### Fixed
 * Config sourced values of private key also need to be buffered with base64 decoding
 
 ## [1.1.1] - 2018-10-05
