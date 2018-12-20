@@ -59,6 +59,7 @@ The `:dimension` parameter indicates the requested dimension(s) for slicing the 
 |`eventCategory`| Slice data by eventCategory |
 |`eventAction`| Slice data by eventAction |
 |`eventLabel`| Slice data by eventAction |
+|`hostname`| Slice data by hostname |
 |other dimensions| Additional dimensions set in the the config file |
 |`none`| Don't slice data by any dimensions. Concatenated dimesions will override. |
 
