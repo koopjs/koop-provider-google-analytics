@@ -9,9 +9,10 @@ const hash = require('object-hash')
 const _ = require('lodash')
 const config = require('config')
 const { CodedError } = require('./error')
-const { TIME_DIMENSIONS, providerParamToGoogle, googleParamToProvider, sqlToMetricOperators } = require('./constants-and-lookups')
+const { TIME_DIMENSIONS, providerParamToGoogle, googleParamToProvider } = require('./constants-and-lookups')
 const validateParams = require('./param-validation')
 const { timeDimensionToTimestamp } = require('./time')
+const { transformDimensionPredicate, transformMetricPredicate } = require('./transform')
 const countries = require('../countries')
 const scopes = 'https://www.googleapis.com/auth/analytics.readonly'
 const MAX_RECORD_COUNT = 10000
@@ -186,30 +187,6 @@ function formatFeature (input, metadata) {
     type: 'Feature',
     properties,
     geometry
-  }
-}
-
-/**
- * Transform parsed where clause dimension predicate to google filter
- * @param {object} predicate
- */
-function transformDimensionPredicate (predicate) {
-  return {
-    dimensionName: providerParamToGoogle[predicate.key],
-    operator: 'EXACT',
-    expressions: [predicate.value]
-  }
-}
-
-/**
- * Transform parsed where clause metric predicate to google filter
- * @param {object} predicate
- */
-function transformMetricPredicate (predicate) {
-  return {
-    metricName: providerParamToGoogle[predicate.key],
-    operator: sqlToMetricOperators[predicate.operator],
-    comparisonValue: predicate.value
   }
 }
 
