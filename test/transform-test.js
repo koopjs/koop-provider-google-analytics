@@ -20,7 +20,6 @@ test('transformDimensionPredicate', function (t) {
   }, 'produced GA dimension filter-clause object; lowercased hostname value')
 })
 
-
 test('transformMetricPredicate', function (t) {
   t.plan(1)
   const fixture = {
@@ -37,4 +36,3 @@ test('transformMetricPredicate', function (t) {
     operator: 'EQUAL'
   }, 'produced GA metric filter-clause object')
 })
-
