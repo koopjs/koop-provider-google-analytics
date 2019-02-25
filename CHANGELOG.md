@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.2] - 2019-02-25
+### Fixed
+* Bumped version due to need to republish npm
+
 ## [1.2.1] - 2019-02-22
 ### Fixed
 * hostname dimension value in a filter clause should be lowercased
@@ -28,6 +32,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [1.0.0] - 2018-09-25
 Initial release of the koop-provider-google-analytics
 
+[1.2.2]: https://github.com/koopjs/koop-provider-google-analytics/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/koopjs/koop-provider-google-analytics/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/koopjs/koop-provider-google-analytics/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/koopjs/koop-provider-google-analytics/compare/v1.1.1...v1.1.2
