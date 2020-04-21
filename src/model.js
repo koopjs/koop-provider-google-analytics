@@ -7,20 +7,32 @@ const { google } = require('googleapis')
 const analytics = google.analyticsreporting({version: 'v4'})
 const hash = require('object-hash')
 const _ = require('lodash')
-const config = require('config')
+const {
+  goog: {
+    analyticsTimezone,
+    privateKey,
+    clientEmail,
+    viewId,
+    backfillTimeseries
+  } = {},
+  analyticsCache: {
+    ttl
+  } = {}
+} = require('config')
 const { CodedError } = require('./error')
 const { TIME_DIMENSIONS, providerParamToGoogle, googleParamToProvider } = require('./constants-and-lookups')
 const validateParams = require('./param-validation')
+const backfillTimeseriesFeatures = require('./backfill-timeseries-features')
 const { timeDimensionToTimestamp } = require('./time')
 const { transformDimensionPredicate, transformMetricPredicate } = require('./transform')
 const countries = require('../countries')
 const scopes = 'https://www.googleapis.com/auth/analytics.readonly'
 const MAX_RECORD_COUNT = 10000
-const analyticsTimezone = process.env.GOOGLE_ANALYTICS_TIMEZONE || _.get(config, 'goog.analyticsTimezone')
-const googPrivateKey = (process.env.GOOGLE_PRIVATE_KEY) ? Buffer.from(process.env.GOOGLE_PRIVATE_KEY, 'base64').toString() : Buffer.from(_.get(config, 'goog.privateKey'), 'base64').toString()
-const googClientEmail = process.env.GOOGLE_CLIENT_EMAIL || _.get(config, 'goog.clientEmail')
-const googViewId = process.env.GOOGLE_VIEW_ID || _.get(config, 'goog.viewId')
-const cacheTtl = process.env.ANALYTICS_CACHE_TTL || _.get(config, 'analyticsCache.ttl')
+const googAnalyticsTimezone = process.env.GOOGLE_ANALYTICS_TIMEZONE || analyticsTimezone
+const googPrivateKey = (process.env.GOOGLE_PRIVATE_KEY) ? Buffer.from(process.env.GOOGLE_PRIVATE_KEY, 'base64').toString() : Buffer.from(privateKey, 'base64').toString()
+const googClientEmail = process.env.GOOGLE_CLIENT_EMAIL || clientEmail
+const googViewId = process.env.GOOGLE_VIEW_ID || viewId
+const cacheTtl = process.env.ANALYTICS_CACHE_TTL || ttl
 
 /**
  * Define the provider Model
@@ -28,7 +40,7 @@ const cacheTtl = process.env.ANALYTICS_CACHE_TTL || _.get(config, 'analyticsCach
 function Model () {}
 
 Model.prototype.getData = function (req, callback) {
-  if (!googViewId || !analyticsTimezone || !googPrivateKey || !googClientEmail) return callback(new CodedError('Environment variables required for accessing Google Analytics are missing.', 500))
+  if (!googViewId || !googAnalyticsTimezone || !googPrivateKey || !googClientEmail) return callback(new CodedError('Environment variables required for accessing Google Analytics are missing.', 500))
 
   // Get the validated request params (validate and set defaults for missing optionals)
   const params = validateParams(req)
@@ -66,6 +78,15 @@ Model.prototype.getData = function (req, callback) {
 
       if (params.value.dimension.includes('country') || params.value.dimension.includes('countryIsoCode')) geojson.metadata.geometryType = 'MultiPolygon'
 
+      if (shouldBackfill(params.value.dimension)) {
+        geojson.features = backfillTimeseriesFeatures({
+          startDate: params.value.time.startDate,
+          endDate: params.value.time.endDate,
+          interval: getTimeDimension(params.value.dimension),
+          timezone: analyticsTimezone,
+          geojson
+        })
+      }
       // Hand off the data to Koop
       callback(null, geojson)
     })
@@ -167,7 +188,7 @@ function formatFeature (input, metadata) {
   // Loop thru dimensions and convert values to GeoJSON properties
   dimensions.forEach((dimension, i) => {
     // If this is the time/interval dimension, give it property name "timestamp"
-    if (TIME_DIMENSIONS.includes(metadata.dimensions[i])) properties.timestamp = timeDimensionToTimestamp(metadata.dimensions[i], dimension, analyticsTimezone)
+    if (TIME_DIMENSIONS.includes(metadata.dimensions[i])) properties.timestamp = timeDimensionToTimestamp(metadata.dimensions[i], dimension, googAnalyticsTimezone)
     else properties[metadata.dimensions[i]] = dimension
   })
 
@@ -190,4 +211,13 @@ function formatFeature (input, metadata) {
   }
 }
 
+
+
+function shouldBackfill (dimensions) {
+  return backfillTimeseries && dimensions.length > 1 && getTimeDimension(dimensions)
+}
+
+function getTimeDimension (dimensions) {
+  return dimensions.find(d => { return TIME_DIMENSIONS.includes(d) })
+}
 module.exports = Model

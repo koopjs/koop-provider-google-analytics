@@ -13,7 +13,8 @@ config.goog = Object.freeze({
   },
   metrics: {
     'ga:newUsers': 'newUsers'
-  }
+  },
+  backfillTimeseries: true
 })
 
 // The analytics cache setting

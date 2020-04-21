@@ -23,6 +23,9 @@ This provider ships with a sample instance `server.js` which registers koop-prov
 #### Config file
 If you prefer, you can set the required variables in the Koop configuration file rather than as environment variables.  See [config/default.js.example](config/default.js.example) for specifics.  The configuration file can also be use to customize the provider's support for additional Google Analytics dimensions and metrics. The [config/default.js.example](config/default.js.example) includes examples of adding dimensions and metrics not already defined in [src/constants-and-lookups.js](src/constants-and-lookups.js).  You will need to remove `.example` from the filename in order for the `config` npm to read and register this file.
 
+#### Backfill multi-dimesional time-series data
+The Google Analytics API won't include empty rows when requesting multiple dimensions; if you want empty rows for a request with a time dimension plus at least one other dimension, set the `backfillTimeseries` configuration setting to `true`.
+
 With the above environment variables and or config set, the Koop server can be started with:
 ```
   node server.js

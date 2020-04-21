@@ -9,48 +9,14 @@ const test = require('tape')
 const dailyTimeSeriesFixture = require('./fixtures/daily-time-series')
 const manyMetricsManyDimensFixture = require('./fixtures/many-metrics-many-dimens')
 const sumFixture = require('./fixtures/sum')
+const multiDimensionFixture = require('./fixtures/multi-dimension')
 const proxyquire = require('proxyquire')
 const _ = require('lodash')
 
-// Stub out the googleapis dependency
-const googleapisStub = {
-  google: {
-    analyticsreporting: function () {
-      return {
-        reports: {
-          // The main get data from Google function
-          batchGet: function (params) {
-            // Needs to return a promise
-            return new Promise((resolve, reject) => {
-              setTimeout(() => {
-                // Return different mock responses based on the params that were submitted
-                const dimensions = params.resource.reportRequests[0].dimensions
-                const metrics = params.resource.reportRequests[0].metrics
-                if (dimensions.length === 0) {
-                  let data = _.cloneDeep(sumFixture)
-                  return resolve(data)
-                } else if (metrics[0].expression === 'ga:pageviews' && dimensions[0].name === 'ga:date') {
-                  let data = _.cloneDeep(dailyTimeSeriesFixture)
-                  return resolve(data)
-                } else {
-                  let data = _.cloneDeep(manyMetricsManyDimensFixture)
-                  return resolve(data)
-                }
-              }, 0)
-            })
-          }
-        }
-      }
-    },
-    // JWT function
-    auth: {JWT: function () { return '' }}
-  }
-}
-const Model = proxyquire('../src/model', { 'googleapis': googleapisStub })
-const model = new Model()
-
 test('should properly translate features from Google Analystics API response to GeoJSON - 30 day time-series', t => {
   t.plan(11)
+  const Model = proxyquire('../src/model', { 'googleapis': getGoogleApiMock(dailyTimeSeriesFixture) })
+  const model = new Model()
   model.getData({params: {host: 'views', id: 'day'}, query: {time: '2018-06-20,2018-07-20'}}, (err, geojson) => {
     t.notOk(err)
     t.equal(geojson.type, 'FeatureCollection')
@@ -68,6 +34,8 @@ test('should properly translate features from Google Analystics API response to 
 
 test('should properly translate features from Google Analystics API response to GeoJSON - 30 day sum', t => {
   t.plan(2)
+  const Model = proxyquire('../src/model', { 'googleapis': getGoogleApiMock(sumFixture) })
+  const model = new Model()
   model.getData({params: {host: 'views', id: 'none'}, query: {time: '2018-06-20,2018-07-20'}}, (err, geojson) => {
     t.equal(err, null)
     t.equal(geojson.features[0].properties.views, 27179)
@@ -76,6 +44,8 @@ test('should properly translate features from Google Analystics API response to 
 
 test('should properly handle and translate concatenated metrics and dimension parameters', t => {
   t.plan(7)
+  const Model = proxyquire('../src/model', { 'googleapis': getGoogleApiMock(manyMetricsManyDimensFixture) })
+  const model = new Model()
   model.getData({ params: { host: 'sessions::views', id: 'country::month', method: 'query' }, query: {} }, (err, geojson) => {
     t.equal(err, null)
     t.equal(geojson.metadata.geometryType, 'MultiPolygon')
@@ -89,6 +59,8 @@ test('should properly handle and translate concatenated metrics and dimension pa
 
 test('should properly modify outFields parameter when a where clause with extra dimensions is added', t => {
   t.plan(2)
+  const Model = proxyquire('../src/model', { 'googleapis': getGoogleApiMock(manyMetricsManyDimensFixture) })
+  const model = new Model()
   const req = {params: {host: 'sessions::views', id: 'month'}, query: { where: `country='Canada'` }}
   model.getData(req, (err, geojson) => {
     t.equal(err, null)
@@ -96,8 +68,28 @@ test('should properly modify outFields parameter when a where clause with extra 
   })
 })
 
+test('should properly backfill features from Google Analystics API response', t => {
+  t.plan(2)
+  const Model = proxyquire('../src/model', {
+    'googleapis': getGoogleApiMock(multiDimensionFixture),
+    'config': {
+      goog: {
+        backfillTimeseries: true,
+        analyticsTimezone: 'America/New_York'
+      }
+    }
+  })
+  const model = new Model()
+  model.getData({params: {host: 'views', id: 'day::eventCategory'}, query: {time: '2020-03-20,2020-04-20'}}, (err, geojson) => {
+    t.notOk(err)
+    t.equals(geojson.features.length, 35)
+  })
+})
+
 test('should reject with 400 error do to bad request parameters', t => {
   t.plan(4)
+  const Model = proxyquire('../src/model', { 'googleapis': getGoogleApiMock(dailyTimeSeriesFixture) })
+  const model = new Model()
   model.getData({params: {host: 'bad-param', id: 'day'}, query: {}}, (err, geojson) => {
     t.ok(err)
     t.equal(err.code, 400)
@@ -107,3 +99,23 @@ test('should reject with 400 error do to bad request parameters', t => {
     t.equal(err.code, 400)
   })
 })
+
+function getGoogleApiMock (data) {
+  return {
+    google: {
+      analyticsreporting: function () {
+        return {
+          reports: {
+            // The main get data from Google function
+            batchGet: async function (params) {
+              // Needs to return a promise
+                return Promise.resolve(data)
+            }
+          }
+        }
+      },
+      // JWT function
+      auth: {JWT: function () { return '' }}
+    }
+  }
+}
