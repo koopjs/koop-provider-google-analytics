@@ -6,7 +6,7 @@ const path = require('path')
 process.env.NODE_CONFIG_DIR = process.env.NODE_CONFIG_DIR || path.join(__dirname, 'config')
 process.env.NODE_CONFIG_ENV = 'index'
 
-  // Initialize Koop
+// Initialize Koop
 const Koop = require('koop')
 const koop = new Koop()
 

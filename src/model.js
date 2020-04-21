@@ -4,7 +4,7 @@
   Documentation: http://koopjs.github.io/docs/specs/provider/
 */
 const { google } = require('googleapis')
-const analytics = google.analyticsreporting({version: 'v4'})
+const analytics = google.analyticsreporting({ version: 'v4' })
 const hash = require('object-hash')
 const _ = require('lodash')
 const {
@@ -72,7 +72,7 @@ Model.prototype.getData = function (req, callback) {
       geojson.metadata = {
         name: `${params.value.metric.join(', ')} by ${params.value.dimension.join(', ')}`,
         title: `${params.value.metric.join(', ')} by ${params.value.dimension.join(', ')}`,
-        description: `This provider converts Koop request parameters to parameters required by Google Analytics, and translates the response to GeoJSON for use in Koop output services`,
+        description: 'This provider converts Koop request parameters to parameters required by Google Analytics, and translates the response to GeoJSON for use in Koop output services',
         maxRecordCount: MAX_RECORD_COUNT
       }
 
@@ -100,7 +100,7 @@ Model.prototype.getData = function (req, callback) {
  * @param {*} req
  */
 Model.prototype.createKey = function (req) {
-  let validatedParams = validateParams(req)
+  const validatedParams = validateParams(req)
   if (!validatedParams.error) {
     return `${req.url.split('/')[1]}::${hash(validatedParams.value)}`
   }
@@ -128,13 +128,13 @@ function prepareRequestBody (params) {
 
   // Create the google analytics request parameters
   return {
-    'auth': jwt,
+    auth: jwt,
     resource: {
       reportRequests: [{
         viewId: `ga:${googViewId}`,
         pageSize: MAX_RECORD_COUNT,
-        dateRanges: [ {startDate: params.time.startDate, endDate: params.time.endDate} ],
-        metrics: params.metric.map(m => { return {expression: providerParamToGoogle[m]} }),
+        dateRanges: [{ startDate: params.time.startDate, endDate: params.time.endDate }],
+        metrics: params.metric.map(m => { return { expression: providerParamToGoogle[m] } }),
         dimensions: params.dimension.map(d => { return { name: providerParamToGoogle[d] } }),
         metricFilterClauses: [{ operator: params.where.metricFilters.operator, filters: params.where.metricFilters.filters.map(transformMetricPredicate) }],
         dimensionFilterClauses: [{ operator: params.where.dimensionFilters.operator, filters: params.where.dimensionFilters.filters.map(transformDimensionPredicate) }],
@@ -164,7 +164,7 @@ function translate (metadata, data) {
   })
 
   // Map data rows to geojson features
-  const features = data.map(row => { return formatFeature(row, {dimensions: dimensionMetadata, metrics: metricsMetadata}) })
+  const features = data.map(row => { return formatFeature(row, { dimensions: dimensionMetadata, metrics: metricsMetadata }) })
 
   // Return the GeoJSON feature collection
   return {
@@ -199,8 +199,8 @@ function formatFeature (input, metadata) {
   })
 
   // Support geometry for country dimensioning.  If the properties include countryIsoCode, we can use it to pull geometry from a country.json file
-  if (properties.hasOwnProperty('countryIsoCode')) {
-    let country = _.find(countries.features, ['properties.ISO_A2', properties.countryIsoCode]) || {}
+  if (properties['countryIsoCode']) {
+    const country = _.find(countries.features, ['properties.ISO_A2', properties.countryIsoCode]) || {}
     geometry = country.geometry
   }
 
@@ -210,8 +210,6 @@ function formatFeature (input, metadata) {
     geometry
   }
 }
-
-
 
 function shouldBackfill (dimensions) {
   return backfillTimeseries && dimensions.length > 1 && getTimeDimension(dimensions)

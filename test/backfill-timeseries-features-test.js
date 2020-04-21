@@ -3,7 +3,7 @@ const backfillTimeseriesFeatures = require('../src/backfill-timeseries-features'
 
 test('backfillTimeseriesFeatures - by day', spec => {
   spec.plan(3)
-  const startDate ='2020-01-01'
+  const startDate = '2020-01-01'
   const endDate = '2020-01-31'
   const interval = 'day'
   const timezone = 'America/New_York'
@@ -24,7 +24,7 @@ test('backfillTimeseriesFeatures - by day', spec => {
 
 test('backfillTimeseriesFeatures - by hour', spec => {
   spec.plan(3)
-  const startDate ='2020-01-01'
+  const startDate = '2020-01-01'
   const endDate = '2020-01-31'
   const interval = 'hour'
   const timezone = 'America/New_York'
@@ -45,7 +45,7 @@ test('backfillTimeseriesFeatures - by hour', spec => {
 
 test('backfillTimeseriesFeatures - by hour', spec => {
   spec.plan(3)
-  const startDate ='2020-01-01'
+  const startDate = '2020-01-01'
   const endDate = '2020-01-31'
   const interval = 'month'
   const timezone = 'America/New_York'
