@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [1.3.0] - 2020-04-22
 ### Added
 * Backfill option that adds empty rows when multiply dimensions are requested
 
@@ -36,6 +36,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [1.0.0] - 2018-09-25
 Initial release of the koop-provider-google-analytics
 
+[1.3.0]: https://github.com/koopjs/koop-provider-google-analytics/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/koopjs/koop-provider-google-analytics/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/koopjs/koop-provider-google-analytics/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/koopjs/koop-provider-google-analytics/compare/v1.1.2...v1.2.0
