@@ -1,0 +1,217 @@
+{
+  "data": {
+    "reports": [
+      {
+        "columnHeader": {
+          "dimensions": [
+            "ga:date",
+            "ga:eventCategory"
+          ],
+          "metricHeader": {
+            "metricHeaderEntries": [
+              {
+                "name": "ga:pageviews",
+                "type": "INTEGER"
+              }
+            ]
+          }
+        },
+        "data": {
+          "rows": [
+            {
+              "dimensions": [
+                "20200323",
+                "anonymous"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "1"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200323",
+                "staff"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "3"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200324",
+                "staff"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "5"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200325",
+                "staff"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "4"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200326",
+                "anonymous"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "4"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200326",
+                "staff"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "3"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200327",
+                "staff"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "1"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200329",
+                "anonymous"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "4"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200403",
+                "staff"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "6"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200406",
+                "anonymous"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200407",
+                "anonymous"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "1"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200407",
+                "staff"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "2"
+                  ]
+                }
+              ]
+            },
+            {
+              "dimensions": [
+                "20200410",
+                "anonymous"
+              ],
+              "metrics": [
+                {
+                  "values": [
+                    "3"
+                  ]
+                }
+              ]
+            }
+          ],
+          "totals": [
+            {
+              "values": [
+                "39"
+              ]
+            }
+          ],
+          "rowCount": 13,
+          "minimums": [
+            {
+              "values": [
+                "1"
+              ]
+            }
+          ],
+          "maximums": [
+            {
+              "values": [
+                "6"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

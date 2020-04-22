@@ -75,7 +75,7 @@ function timeArray (joi) {
       // Validate a two element array with either null, a timestamp, or a YYYY-MM-DD string
       if (timerange.length !== 2 || timerange.some(time => {
         if (time !== 'null' && !moment(Number(time)).isValid() && !moment(time, 'YYYY-MM-DD').isValid()) return true
-      })) return this.createError(`"time" param must be a comma delimited string: "<start>,<end>". Use "null", a YYY-MM-DD string, or a unix timestamp`, { v: value }, state, options)
+      })) return this.createError('"time" param must be a comma delimited string: "<start>,<end>". Use "null", a YYY-MM-DD string, or a unix timestamp', { v: value }, state, options)
 
       // Handle nulls
       if (timerange[0] === 'null') startDate = dateRangeStart
@@ -100,7 +100,7 @@ function outFields (joi) {
     name: 'outFields',
     coerce (value, state, options) {
       if (!value) return
-      if (typeof value !== 'string') return this.createError(`"outFields" param should be a string`, { v: value }, state, options)
+      if (typeof value !== 'string') return this.createError('"outFields" param should be a string', { v: value }, state, options)
       if (value === '*') return []
       return value.split(',')
     }
@@ -112,11 +112,11 @@ const customJoi = Joi.extend(doubleColonDelimited).extend(where).extend(outField
 
 // Create a validation and default value schema for incoming request parameters
 const paramsSchema = Joi.object().keys({
-  'dimension': customJoi.doubleColonDelimited().dimensions().items(DIMENSIONS).single().error(new CodedError(`Invalid "dimensions" parameter`, 400)),
-  'metric': customJoi.doubleColonDelimited().items(METRICS).single().error(new CodedError(`"metric" parameter must be one of: ${METRICS.join(', ')}`, 400)),
-  'where': customJoi.where().default({ metricFilters: { filters: [] }, dimensionFilters: { filters: [] } }).error((errors) => { return new CodedError(errors[0].message || errors[0].type, 400) }),
-  'outFields': customJoi.outFields().default([]).error((errors) => { return new CodedError(errors[0].message || errors[0].type, 400) }),
-  'time': customJoi.timeArray().default(function () { return { startDate: dateRangeStart, endDate: moment().format('YYYY-MM-DD') } }, 'time')
+  dimension: customJoi.doubleColonDelimited().dimensions().items(DIMENSIONS).single().error(new CodedError('Invalid "dimensions" parameter', 400)),
+  metric: customJoi.doubleColonDelimited().items(METRICS).single().error(new CodedError(`"metric" parameter must be one of: ${METRICS.join(', ')}`, 400)),
+  where: customJoi.where().default({ metricFilters: { filters: [] }, dimensionFilters: { filters: [] } }).error((errors) => { return new CodedError(errors[0].message || errors[0].type, 400) }),
+  outFields: customJoi.outFields().default([]).error((errors) => { return new CodedError(errors[0].message || errors[0].type, 400) }),
+  time: customJoi.timeArray().default(function () { return { startDate: dateRangeStart, endDate: moment().format('YYYY-MM-DD') } }, 'time')
 }).unknown()
 
 /**

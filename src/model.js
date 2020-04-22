@@ -4,23 +4,35 @@
   Documentation: http://koopjs.github.io/docs/specs/provider/
 */
 const { google } = require('googleapis')
-const analytics = google.analyticsreporting({version: 'v4'})
+const analytics = google.analyticsreporting({ version: 'v4' })
 const hash = require('object-hash')
 const _ = require('lodash')
-const config = require('config')
+const {
+  goog: {
+    analyticsTimezone,
+    privateKey,
+    clientEmail,
+    viewId,
+    backfillTimeseries
+  } = {},
+  analyticsCache: {
+    ttl
+  } = {}
+} = require('config')
 const { CodedError } = require('./error')
 const { TIME_DIMENSIONS, providerParamToGoogle, googleParamToProvider } = require('./constants-and-lookups')
 const validateParams = require('./param-validation')
+const backfillTimeseriesFeatures = require('./backfill-timeseries-features')
 const { timeDimensionToTimestamp } = require('./time')
 const { transformDimensionPredicate, transformMetricPredicate } = require('./transform')
 const countries = require('../countries')
 const scopes = 'https://www.googleapis.com/auth/analytics.readonly'
 const MAX_RECORD_COUNT = 10000
-const analyticsTimezone = process.env.GOOGLE_ANALYTICS_TIMEZONE || _.get(config, 'goog.analyticsTimezone')
-const googPrivateKey = (process.env.GOOGLE_PRIVATE_KEY) ? Buffer.from(process.env.GOOGLE_PRIVATE_KEY, 'base64').toString() : Buffer.from(_.get(config, 'goog.privateKey'), 'base64').toString()
-const googClientEmail = process.env.GOOGLE_CLIENT_EMAIL || _.get(config, 'goog.clientEmail')
-const googViewId = process.env.GOOGLE_VIEW_ID || _.get(config, 'goog.viewId')
-const cacheTtl = process.env.ANALYTICS_CACHE_TTL || _.get(config, 'analyticsCache.ttl')
+const googAnalyticsTimezone = process.env.GOOGLE_ANALYTICS_TIMEZONE || analyticsTimezone
+const googPrivateKey = (process.env.GOOGLE_PRIVATE_KEY) ? Buffer.from(process.env.GOOGLE_PRIVATE_KEY, 'base64').toString() : Buffer.from(privateKey, 'base64').toString()
+const googClientEmail = process.env.GOOGLE_CLIENT_EMAIL || clientEmail
+const googViewId = process.env.GOOGLE_VIEW_ID || viewId
+const cacheTtl = process.env.ANALYTICS_CACHE_TTL || ttl
 
 /**
  * Define the provider Model
@@ -28,7 +40,7 @@ const cacheTtl = process.env.ANALYTICS_CACHE_TTL || _.get(config, 'analyticsCach
 function Model () {}
 
 Model.prototype.getData = function (req, callback) {
-  if (!googViewId || !analyticsTimezone || !googPrivateKey || !googClientEmail) return callback(new CodedError('Environment variables required for accessing Google Analytics are missing.', 500))
+  if (!googViewId || !googAnalyticsTimezone || !googPrivateKey || !googClientEmail) return callback(new CodedError('Environment variables required for accessing Google Analytics are missing.', 500))
 
   // Get the validated request params (validate and set defaults for missing optionals)
   const params = validateParams(req)
@@ -60,12 +72,21 @@ Model.prototype.getData = function (req, callback) {
       geojson.metadata = {
         name: `${params.value.metric.join(', ')} by ${params.value.dimension.join(', ')}`,
         title: `${params.value.metric.join(', ')} by ${params.value.dimension.join(', ')}`,
-        description: `This provider converts Koop request parameters to parameters required by Google Analytics, and translates the response to GeoJSON for use in Koop output services`,
+        description: 'This provider converts Koop request parameters to parameters required by Google Analytics, and translates the response to GeoJSON for use in Koop output services',
         maxRecordCount: MAX_RECORD_COUNT
       }
 
       if (params.value.dimension.includes('country') || params.value.dimension.includes('countryIsoCode')) geojson.metadata.geometryType = 'MultiPolygon'
 
+      if (shouldBackfill(params.value.dimension)) {
+        geojson.features = backfillTimeseriesFeatures({
+          startDate: params.value.time.startDate,
+          endDate: params.value.time.endDate,
+          interval: getTimeDimension(params.value.dimension),
+          timezone: analyticsTimezone,
+          geojson
+        })
+      }
       // Hand off the data to Koop
       callback(null, geojson)
     })
@@ -79,7 +100,7 @@ Model.prototype.getData = function (req, callback) {
  * @param {*} req
  */
 Model.prototype.createKey = function (req) {
-  let validatedParams = validateParams(req)
+  const validatedParams = validateParams(req)
   if (!validatedParams.error) {
     return `${req.url.split('/')[1]}::${hash(validatedParams.value)}`
   }
@@ -107,13 +128,13 @@ function prepareRequestBody (params) {
 
   // Create the google analytics request parameters
   return {
-    'auth': jwt,
+    auth: jwt,
     resource: {
       reportRequests: [{
         viewId: `ga:${googViewId}`,
         pageSize: MAX_RECORD_COUNT,
-        dateRanges: [ {startDate: params.time.startDate, endDate: params.time.endDate} ],
-        metrics: params.metric.map(m => { return {expression: providerParamToGoogle[m]} }),
+        dateRanges: [{ startDate: params.time.startDate, endDate: params.time.endDate }],
+        metrics: params.metric.map(m => { return { expression: providerParamToGoogle[m] } }),
         dimensions: params.dimension.map(d => { return { name: providerParamToGoogle[d] } }),
         metricFilterClauses: [{ operator: params.where.metricFilters.operator, filters: params.where.metricFilters.filters.map(transformMetricPredicate) }],
         dimensionFilterClauses: [{ operator: params.where.dimensionFilters.operator, filters: params.where.dimensionFilters.filters.map(transformDimensionPredicate) }],
@@ -143,7 +164,7 @@ function translate (metadata, data) {
   })
 
   // Map data rows to geojson features
-  const features = data.map(row => { return formatFeature(row, {dimensions: dimensionMetadata, metrics: metricsMetadata}) })
+  const features = data.map(row => { return formatFeature(row, { dimensions: dimensionMetadata, metrics: metricsMetadata }) })
 
   // Return the GeoJSON feature collection
   return {
@@ -167,7 +188,7 @@ function formatFeature (input, metadata) {
   // Loop thru dimensions and convert values to GeoJSON properties
   dimensions.forEach((dimension, i) => {
     // If this is the time/interval dimension, give it property name "timestamp"
-    if (TIME_DIMENSIONS.includes(metadata.dimensions[i])) properties.timestamp = timeDimensionToTimestamp(metadata.dimensions[i], dimension, analyticsTimezone)
+    if (TIME_DIMENSIONS.includes(metadata.dimensions[i])) properties.timestamp = timeDimensionToTimestamp(metadata.dimensions[i], dimension, googAnalyticsTimezone)
     else properties[metadata.dimensions[i]] = dimension
   })
 
@@ -178,8 +199,8 @@ function formatFeature (input, metadata) {
   })
 
   // Support geometry for country dimensioning.  If the properties include countryIsoCode, we can use it to pull geometry from a country.json file
-  if (properties.hasOwnProperty('countryIsoCode')) {
-    let country = _.find(countries.features, ['properties.ISO_A2', properties.countryIsoCode]) || {}
+  if (properties['countryIsoCode']) {
+    const country = _.find(countries.features, ['properties.ISO_A2', properties.countryIsoCode]) || {}
     geometry = country.geometry
   }
 
@@ -190,4 +211,11 @@ function formatFeature (input, metadata) {
   }
 }
 
+function shouldBackfill (dimensions) {
+  return backfillTimeseries && dimensions.length > 1 && getTimeDimension(dimensions)
+}
+
+function getTimeDimension (dimensions) {
+  return dimensions.find(d => { return TIME_DIMENSIONS.includes(d) })
+}
 module.exports = Model

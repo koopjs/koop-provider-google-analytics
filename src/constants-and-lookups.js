@@ -1,7 +1,7 @@
 const _ = require('lodash')
 const config = require('config')
-const customNonTimeDimensions = _.get(config, `goog.dimensions`) || {}
-const customMetrics = _.get(config, `goog.metrics`) || {}
+const customNonTimeDimensions = _.get(config, 'goog.dimensions') || {}
+const customMetrics = _.get(config, 'goog.metrics') || {}
 
 const googleTimeDimensions = {
   'ga:dateHour': 'hour',

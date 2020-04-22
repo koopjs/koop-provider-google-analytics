@@ -63,7 +63,7 @@ function enrichAST (node) {
       return result
     }
 
-    result.predicates = [{key: column, value, operator: node.operator, type: _.get(result, 'types[0]')}]
+    result.predicates = [{ key: column, value, operator: node.operator, type: _.get(result, 'types[0]') }]
     return result
   }
 
@@ -109,7 +109,7 @@ function validateTranslatable (enrichedAST) {
       if (enrichedAST.logicalOperators[0] === 'OR') enrichedAST.error = new CodedError('Metric and dimension predicates cannot be combined with OR, only with AND.', 400)
 
       // Sets of metrics predicates need to be partioned in left and right parenthesis at the top level of the AST.
-      else if (enrichedAST.left.types.length > 1 || enrichedAST.right.types.length > 1) enrichedAST.error = new CodedError(`Metric and dimension predicates should be partioned into left and right collections with parenthesis, e.g. (views > 50 OR session > 20) AND (itemId='abcd123' OR country='United States')`, 400)
+      else if (enrichedAST.left.types.length > 1 || enrichedAST.right.types.length > 1) enrichedAST.error = new CodedError('Metric and dimension predicates should be partioned into left and right collections with parenthesis, e.g. (views > 50 OR session > 20) AND (itemId=\'abcd123\' OR country=\'United States\')', 400)
       // Predicates within a partitioned set can only be combined with one type of logical operator (AND or OR, not both)
       else if (_.size(enrichedAST.left.logicalOperators) > 1 || _.size(enrichedAST.right.logicalOperators) > 1) enrichedAST.error = new CodedError('Mixed logical operators (AND, OR) within sets of metric or dimension predicates are not supported', 400)
     }
@@ -125,8 +125,8 @@ function validateTranslatable (enrichedAST) {
 function translate (enrichedAST) {
   // If error, exit
   if (enrichedAST.error) return enrichedAST
-  let metricFilters = {}
-  let dimensionFilters = {}
+  const metricFilters = {}
+  const dimensionFilters = {}
 
   // Organize predicates by type
   metricFilters.filters = enrichedAST.predicates.filter(p => p.type === 'metric')

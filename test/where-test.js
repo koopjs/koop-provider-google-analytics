@@ -3,7 +3,7 @@ const { whereDecomposer } = require('../src/where')
 
 test('whereDecomposer - single metric predicate', t => {
   t.plan(6)
-  let result = whereDecomposer(`views = 100`)
+  const result = whereDecomposer('views = 100')
   t.notOk(result.error)
   t.equals(result.metricFilters.filters.length, 1)
   t.equals(result.dimensionFilters.filters.length, 0)
@@ -14,7 +14,7 @@ test('whereDecomposer - single metric predicate', t => {
 
 test('whereDecomposer - single dimension predicate', t => {
   t.plan(6)
-  let result = whereDecomposer(`country = 'United States'`)
+  const result = whereDecomposer('country = \'United States\'')
   t.notOk(result.error)
   t.equals(result.dimensionFilters.filters.length, 1)
   t.equals(result.metricFilters.filters.length, 0)
@@ -25,7 +25,7 @@ test('whereDecomposer - single dimension predicate', t => {
 
 test('whereDecomposer - single dimension predicate, trailing column', t => {
   t.plan(6)
-  let result = whereDecomposer(`'United States'=country`)
+  const result = whereDecomposer('\'United States\'=country')
   t.notOk(result.error)
   t.equals(result.dimensionFilters.filters.length, 1)
   t.equals(result.metricFilters.filters.length, 0)
@@ -36,7 +36,7 @@ test('whereDecomposer - single dimension predicate, trailing column', t => {
 
 test('whereDecomposer - multiple (metric) predicates combined with AND', t => {
   t.plan(10)
-  let result = whereDecomposer(`views = 100 AND sessions = 10`)
+  const result = whereDecomposer('views = 100 AND sessions = 10')
   t.notOk(result.error)
   t.equals(result.metricFilters.filters.length, 2)
   t.equals(result.dimensionFilters.filters.length, 0)
@@ -51,7 +51,7 @@ test('whereDecomposer - multiple (metric) predicates combined with AND', t => {
 
 test('whereDecomposer - multiple (metric) predicates combined with OR', t => {
   t.plan(10)
-  let result = whereDecomposer(`views = 100 OR sessions = 10`)
+  const result = whereDecomposer('views = 100 OR sessions = 10')
   t.notOk(result.error)
   t.equals(result.metricFilters.filters.length, 2)
   t.equals(result.dimensionFilters.filters.length, 0)
@@ -66,7 +66,7 @@ test('whereDecomposer - multiple (metric) predicates combined with OR', t => {
 
 test('whereDecomposer - multiple (metric and dimension) predicates combined with AND', t => {
   t.plan(9)
-  let result = whereDecomposer(`views = 100 AND country = 'United States'`)
+  const result = whereDecomposer('views = 100 AND country = \'United States\'')
   t.notOk(result.error)
   t.equals(result.metricFilters.filters.length, 1)
   t.equals(result.dimensionFilters.filters.length, 1)
@@ -80,7 +80,7 @@ test('whereDecomposer - multiple (metric and dimension) predicates combined with
 
 test('whereDecomposer - multiple metric and dimension predicates', t => {
   t.plan(17)
-  let result = whereDecomposer(`(views = 100 AND sessions = 10) AND (country = 'United States' OR country = 'Canada')`)
+  const result = whereDecomposer('(views = 100 AND sessions = 10) AND (country = \'United States\' OR country = \'Canada\')')
   t.notOk(result.error)
   t.equals(result.metricFilters.filters.length, 2)
   t.equals(result.dimensionFilters.filters.length, 2)
@@ -102,36 +102,36 @@ test('whereDecomposer - multiple metric and dimension predicates', t => {
 
 test('whereDecomposer - fail with invalid SQL', t => {
   t.plan(1)
-  let result = whereDecomposer(`views = 100 country = 'United States'`)
+  const result = whereDecomposer('views = 100 country = \'United States\'')
   t.ok(result.error)
 })
 
 test('whereDecomposer - fail with unsupported key name', t => {
   t.plan(1)
-  let result = whereDecomposer(`iews = 100`)
+  const result = whereDecomposer('iews = 100')
   t.ok(result.error)
 })
 
 test('whereDecomposer - fail with unsupported operator', t => {
   t.plan(1)
-  let result = whereDecomposer(`itemId IN ('01', '03')`)
+  const result = whereDecomposer('itemId IN (\'01\', \'03\')')
   t.ok(result.error)
 })
 
 test('whereDecomposer - fail when combining metric and dimensions with OR', t => {
   t.plan(1)
-  let result = whereDecomposer(`views = 100 OR country = 'United States'`)
+  const result = whereDecomposer('views = 100 OR country = \'United States\'')
   t.ok(result.error)
 })
 
 test('whereDecomposer - fail when combining metrics with multiple logical operators', t => {
   t.plan(1)
-  let result = whereDecomposer(`views = 100 OR views = 1000 AND sessions = 10`)
+  const result = whereDecomposer('views = 100 OR views = 1000 AND sessions = 10')
   t.ok(result.error)
 })
 
 test('whereDecomposer - fail when combining metrics with multiple logical operators', t => {
   t.plan(1)
-  let result = whereDecomposer(`(views = 100 OR views = 1000 AND sessions = 10) AND (country = 'United States')`)
+  const result = whereDecomposer('(views = 100 OR views = 1000 AND sessions = 10) AND (country = \'United States\')')
   t.ok(result.error)
 })
