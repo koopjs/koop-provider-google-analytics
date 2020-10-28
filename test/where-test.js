@@ -1,5 +1,5 @@
 const test = require('tape')
-const { whereDecomposer } = require('../src/where')
+const { whereDecomposer } = require('../src/validation/where')
 
 test('whereDecomposer - single metric predicate', t => {
   t.plan(6)

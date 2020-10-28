@@ -1,5 +1,5 @@
 const test = require('tape')
-const { timeDimensionToTimestamp } = require('../src/time')
+const { timeDimensionToTimestamp } = require('../src/validation/time')
 const timezone = 'America/New_York'
 const timezoneChicago = 'America/Chicago'
 

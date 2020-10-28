@@ -1,8 +1,8 @@
 const _ = require('lodash')
 const { Parser } = require('flora-sql-parser')
 const parser = new Parser()
-const { METRICS, DIMENSIONS, METRICS_OPERATORS } = require('./constants-and-lookups')
-const { CodedError } = require('./error')
+const { METRICS, DIMENSIONS, METRICS_OPERATORS } = require('../constants-and-lookups')
+const { CodedError } = require('../error')
 
 /**
  * Decomposes where clause into an array of predicate objects.
