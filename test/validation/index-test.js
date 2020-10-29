@@ -1,6 +1,6 @@
 const test = require('tape')
 const _ = require('lodash')
-const validateParams = require('../src/validation/param-validation')
+const validateParams = require('../../src/validation')
 
 test('validateParams - simple metric and dimension params', function (t) {
   const req = { params: { id: 'views:country' }, query: {} }

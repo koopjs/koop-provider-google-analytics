@@ -15,7 +15,7 @@ const {
 } = require('config')
 const { CodedError } = require('./error')
 const { TIME_DIMENSIONS, providerParamToGoogle, googleParamToProvider } = require('./constants-and-lookups')
-const validateParams = require('./validation/param-validation')
+const validateParams = require('./validation')
 const backfillTimeseriesFeatures = require('./backfill-timeseries-features')
 const { timeDimensionToTimestamp } = require('./validation/time')
 const { transformDimensionPredicate, transformMetricPredicate } = require('./transform')
@@ -35,10 +35,8 @@ function Model () {}
 Model.prototype.getData = function (req, callback) {
   if (!googViewId || !googAnalyticsTimezone || !googPrivateKey || !googClientEmail) return callback(new CodedError('Environment variables required for accessing Google Analytics are missing.', 500))
 
-  // Get the validated request params (validate and set defaults for missing optionals)
   const { error, value: params } = validateParams(req)
 
-  // Reject request if parameter
   if (error) return callback(error)
 
   // Leverage outFields to maintain desired set of output attributes
