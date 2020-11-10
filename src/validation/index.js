@@ -3,8 +3,8 @@ const _ = require('lodash')
 const moment = require('moment')
 const config = require('config')
 const { whereDecomposer } = require('./where')
-const { CodedError } = require('./error')
-const { DIMENSIONS, TIME_DIMENSIONS, METRICS } = require('./constants-and-lookups')
+const { CodedError } = require('../error')
+const { DIMENSIONS, TIME_DIMENSIONS, METRICS } = require('../constants-and-lookups')
 const dateRangeStart = process.env.GOOGLE_START_DATE || _.get(config, 'goog.startDate') || '2005-01-01'
 
 /**
@@ -112,37 +112,42 @@ const customJoi = Joi.extend(doubleColonDelimited).extend(where).extend(outField
 
 // Create a validation and default value schema for incoming request parameters
 const paramsSchema = Joi.object().keys({
-  dimension: customJoi.doubleColonDelimited().dimensions().items(DIMENSIONS).single().error(new CodedError('Invalid "dimensions" parameter', 400)),
-  metric: customJoi.doubleColonDelimited().items(METRICS).single().error(new CodedError(`"metric" parameter must be one of: ${METRICS.join(', ')}`, 400)),
+  dimension: customJoi.array().items(DIMENSIONS).single().error(new CodedError('Invalid "dimensions" parameter', 400)),
+  metric: customJoi.array().items(METRICS).single().error(new CodedError(`"metric" parameter must be one of: ${METRICS.join(', ')}`, 400)),
   where: customJoi.where().default({ metricFilters: { filters: [] }, dimensionFilters: { filters: [] } }).error((errors) => { return new CodedError(errors[0].message || errors[0].type, 400) }),
   outFields: customJoi.outFields().default([]).error((errors) => { return new CodedError(errors[0].message || errors[0].type, 400) }),
   time: customJoi.timeArray().default(function () { return { startDate: dateRangeStart, endDate: moment().format('YYYY-MM-DD') } }, 'time')
 }).unknown()
 
-/**
- * Combine route params and query params into one object and validate and transform with Joi schema.  Assign result to req._validatedParams
- * @param {object} req - the request object
- */
 function validateParams (req) {
-  // If the req._validatedParams is not defined, execute parameter validation
-  if (!req._validatedParams) {
-    // Rename Koop route params
-    const metric = req.params.host
-    const dimension = req.params.id
+  const { query: queryParams, params: { id } } = req
 
-    // Validate against Joi schema (and assign default values to optional query params)
-    req._validatedParams = Joi.validate(Object.assign({}, req.query, { metric, dimension }), paramsSchema)
-    if (req._validatedParams.error) return req._validatedParams
+  const pathParams = parseIdParam(id)
 
-    req._validatedParams.value.outFields = prepOutFieldsForWinnow(req._validatedParams.value.outFields, [].concat(req._validatedParams.value.metric, req._validatedParams.value.dimension))
+  const { error, value } = Joi.validate({ ...queryParams, ...pathParams }, paramsSchema)
 
-    // Use validated time parameter to override req.query.time if values sent as YYYY-MM-DD strings, thus conforming to GeoServices API spec of using unix timestamps
-    if (req.query.time && RegExp(/^\d\d\d\d-\d\d-\d\d/).test(req.query.time)) req.query.time = `${moment(req._validatedParams.value.time.startDate, 'YYYY-MM-DD').valueOf()},${moment(req._validatedParams.value.time.endDate, 'YYYY-MM-DD').valueOf()}`
+  if (error) return { error }
 
-    // Strip "where" off of req.query, Google Analytics will have already filtered; Also, Winnow expects where predicates columns in the GeoJSON properties, but they will only be there if included in metrics and dimesion route params
-    if (req.query.where) delete req.query.where
-  }
-  return req._validatedParams
+  value.outFields = prepOutFieldsForWinnow(value.outFields, [].concat(value.metric, value.dimension))
+
+  return { value }
+}
+
+function parseIdParam (id) {
+  const idRegex = /^(?<delimitedMetrics>[^:]+)(:)?((?<delimitedDimensions>[^~]+)(~?)(?<delimitedOptions>.+)?)?$/
+  const { groups: { delimitedMetrics, delimitedDimensions, delimitedOptions } } = idRegex.exec(id)
+  const metric = delimitedMetrics ? delimitedMetrics.split(',') : []
+  const dimension = delimitedDimensions ? delimitedDimensions.split(',') : []
+  const options = delimitedOptions ? parseOptions(delimitedOptions) : undefined
+  return { metric, dimension, options }
+}
+
+function parseOptions (delimitedOptions) {
+  return _.chain(delimitedOptions)
+    .split(',')
+    .map(key => { return [key, true] })
+    .fromPairs()
+    .value()
 }
 
 /**

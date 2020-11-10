@@ -2,7 +2,7 @@ const _ = require('lodash')
 const Moment = require('moment')
 const MomentRange = require('moment-range')
 const moment = MomentRange.extendMoment(Moment)
-const { timeDimensionToTimestamp } = require('./time')
+const { timeDimensionToTimestamp } = require('./validation/time')
 
 function backfillTimeseriesFeatures ({ startDate, endDate, interval, timezone, geojson }) {
   const features = _.chain(geojson.features).cloneDeep().value()

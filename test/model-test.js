@@ -16,7 +16,7 @@ test('should properly translate features from Google Analystics API response to 
   t.plan(11)
   const Model = proxyquire('../src/model', { googleapis: getGoogleApiMock(dailyTimeSeriesFixture) })
   const model = new Model()
-  model.getData({ params: { host: 'views', id: 'day' }, query: { time: '2018-06-20,2018-07-20' } }, (err, geojson) => {
+  model.getData({ params: { id: 'views:day' }, query: { time: '2018-06-20,2018-07-20' } }, (err, geojson) => {
     t.notOk(err)
     t.equal(geojson.type, 'FeatureCollection')
     t.ok(geojson.features)
@@ -35,24 +35,22 @@ test('should properly translate features from Google Analystics API response to 
   t.plan(2)
   const Model = proxyquire('../src/model', { googleapis: getGoogleApiMock(sumFixture) })
   const model = new Model()
-  model.getData({ params: { host: 'views', id: 'none' }, query: { time: '2018-06-20,2018-07-20' } }, (err, geojson) => {
+  model.getData({ params: { id: 'views' }, query: { time: '2018-06-20,2018-07-20' } }, (err, geojson) => {
     t.equal(err, null)
     t.equal(geojson.features[0].properties.views, 27179)
   })
 })
 
 test('should properly handle and translate concatenated metrics and dimension parameters', t => {
-  t.plan(7)
+  t.plan(5)
   const Model = proxyquire('../src/model', { googleapis: getGoogleApiMock(manyMetricsManyDimensFixture) })
   const model = new Model()
-  model.getData({ params: { host: 'sessions::views', id: 'country::month', method: 'query' }, query: {} }, (err, geojson) => {
+  model.getData({ params: { id: 'sessions,views:country,month', method: 'query' }, query: {} }, (err, geojson) => {
     t.equal(err, null)
-    t.equal(geojson.metadata.geometryType, 'MultiPolygon')
     t.equal(geojson.features[3].properties.country, 'Albania')
     t.equal(RegExp(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d\d-\d\d\d\d/).test(geojson.features[3].properties.timestamp), true)
     t.equal(geojson.features[3].properties.sessions, 23)
     t.equal(geojson.features[3].properties.views, 98)
-    t.ok(geojson.features[3].geometry)
   })
 })
 
@@ -60,7 +58,7 @@ test('should properly modify outFields parameter when a where clause with extra 
   t.plan(2)
   const Model = proxyquire('../src/model', { googleapis: getGoogleApiMock(manyMetricsManyDimensFixture) })
   const model = new Model()
-  const req = { params: { host: 'sessions::views', id: 'month' }, query: { where: 'country=\'Canada\'' } }
+  const req = { params: { id: 'sessions,views:month' }, query: { where: 'country=\'Canada\'' } }
   model.getData(req, (err, geojson) => {
     t.equal(err, null)
     t.equal(req.query.outFields, 'sessions,views,month,timestamp,OBJECTID')
@@ -79,7 +77,7 @@ test('should properly backfill features from Google Analystics API response', t 
     }
   })
   const model = new Model()
-  model.getData({ params: { host: 'views', id: 'day::eventCategory' }, query: { time: '2020-03-20,2020-04-20' } }, (err, geojson) => {
+  model.getData({ params: { id: 'views:day,eventCategory' }, query: { time: '2020-03-20,2020-04-20' } }, (err, geojson) => {
     t.notOk(err)
     t.equals(geojson.features.length, 35)
   })
@@ -89,7 +87,7 @@ test('should reject with 400 error do to bad request parameters', t => {
   t.plan(4)
   const Model = proxyquire('../src/model', { googleapis: getGoogleApiMock(dailyTimeSeriesFixture) })
   const model = new Model()
-  model.getData({ params: { host: 'bad-param', id: 'day' }, query: {} }, (err, geojson) => {
+  model.getData({ params: { id: 'bad-param:day' }, query: {} }, (err, geojson) => {
     t.ok(err)
     t.equal(err.code, 400)
   })

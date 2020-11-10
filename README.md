@@ -35,22 +35,25 @@ The Koop API will be listening on port 8080.
 
 ## Service endpoint pattern
 
-The service endpoint conform to the following pattern:
+The service endpoint conforms to the following pattern:
 
-`http://<domain>/metrics/:metric/:dimension/FeatureServer/0/query?<query-parameters>`
+`http://<domain>/google-analytics/:id/FeatureServer/0/query?<query-parameters>`
 
-### Metric parameter
-The `:metric` parameter indicates the requested metric(s).  Multiple metrics can be requested by concatenating values with `::`, e.g `views::uniqueViews`
+### `:id` parameter
+The `:id` parameter is composite of three other parameters.  The requested `metric`, `dimensions`, and transformation `options` are delimited like: `<metric>:<dimensions>~<options>`. A single metric is required. Multiple dimensions or options can be delimited with `,`. You can skip using dimensions or options by leaving out the delimiters and values.  For example, to request a `metric` without `dimensions` but still add `options`, the `:id` parameter would look like `<metric>~<options>`. See each parameter below for details.
+
+#### `metric`
+The `metric` parameter indicates the requested metric.  Only a single metric can be requested.  By default, the provider is configured to allow metrics in the following table.  Additional metrics can be added with the configuration file.
+
 |value|description|
 |---|---|
 |`views`|Number of page views|
 |`uniqueViews`|Number of unique page views|
 |`sessions`|Number of page views|
 |`totalEvents`|Number of total events|
-|other metrics| Additional metrics set in the the config file |
 
-### Dimension parameter
-The `:dimension` parameter indicates the requested dimension(s) for slicing the data.  Multiple dimensions can be requested by concatenating values with `::`, e.g `month::country`
+#### `dimensions`
+The `dimensions` parameter indicates the requested dimension(s) for slicing the data.  Multiple dimensions can be requested by concatenating values with `,`, e.g `month,country`. Default dimension types are listed below. Additional dimensions can be added with the configuration file.
 
 |value|description|
 |---|---|
@@ -63,15 +66,12 @@ The `:dimension` parameter indicates the requested dimension(s) for slicing the 
 |`eventAction`| Slice data by eventAction |
 |`eventLabel`| Slice data by eventAction |
 |`hostname`| Slice data by hostname |
-|other dimensions| Additional dimensions set in the the config file |
-|`none`| Don't slice data by any dimensions. Concatenated dimesions will override. |
 
 ### Query parameters
 Query parameters further refine the metrics request and are optional. Below are a list of the currently supported query parameters and their default values:
 
 |name|type|description|default|
 |---|---|---|---|
-|`token`|`string`| ArcGIS user token. Any requests without a token, or an invalid token are rejected. The token can also be passed in an Authorization header.  | |
 |`time`|`string`|Comma separated date/date-time range for the requested metrics. Can be unix timestamp or `YYYY-MM-DD` strings, e.g. `2017-01-01,2018-01-01` or `1483257600,1514793600`. Use "null" to omit part of the range.| 2000-01-01  to current date |
 |`where`|`string`|A SQL style `WHERE` clause. [See notes below](#where-parameter-rules).||
 
@@ -87,9 +87,6 @@ This provider converts the SQL found in the `where` parameter to arrays of Googl
 ### Feature Service query parameters
 Since Koop employs the FeatureServer output service, you can use its subset of the ArcGIS REST API [parameters for feature service layers](https://developers.arcgis.com/rest/services-reference/query-feature-service-layer-.htm).
 
-#### `outStatistics`
-Of particular interest is the `outStatistics` parameter which can be used to calculate the count, minimum, maximum, average, standard deviation, or variance of a metric over a given dimension. Note, if you are interested in a total value of a metric (ie., sum) over a time range, it's most performant to do this by using a value of `none` for the dimension parameter and omit the `outStatistics` parameter.  If you are interested in the total value of a metric sliced by a non-time dimesion, set the `dimension` parameter appropriately and omit the `outStatistics` parameter.  See sample requests for additional details.
-
 ## Sample requests
 1. [Monthly timeseries of page views for date range](#Monthly-timeseries-of-page-views-for-date-range)  
 1. [Sum of all page views for date range](#Sum-of-all-page-views-for-date-range)  
@@ -102,7 +99,7 @@ Of particular interest is the `outStatistics` parameter which can be used to cal
 **NOTE:* All request require a `token` parameter or `authorization` header with a valid user token.
 
 ### Monthly timeseries of page views for date range
-`http://localhost:8080/metrics/views/month/FeatureServer/0/query?time=2017-01-01,2018-07-01`
+`http://localhost:8080/google-analytics/views:month/FeatureServer/0/query?time=2017-01-01,2018-07-01`
 
 Response:
 
@@ -166,7 +163,7 @@ Response:
 ```
 
 ### Sum of all page views for date range
-`http://localhost:8080/metrics/views/none/FeatureServer/0/query?time=2017-01-01,2018-07-01`
+`http://localhost:8080/google-analytics/views/FeatureServer/0/query?time=2017-01-01,2018-07-01`
 
 Response:
 ```
@@ -209,7 +206,7 @@ Response:
 ```
 
 ### Average monthly page views for date range
-`http://localhost:8080/metrics/views/month/FeatureServer/0/query?time=2017-01-01,2018-07-01&outStatistics=[{"statisticType": "avg","onStatisticField": "views","outStatisticFieldName": "average_monthly_views"}]`
+`http://localhost:8080/google-analytics/views:month/FeatureServer/0/query?time=2017-01-01,2018-07-01&outStatistics=[{"statisticType": "avg","onStatisticField": "views","outStatisticFieldName": "average_monthly_views"}]`
 
 Response:
 
@@ -237,7 +234,7 @@ Response:
 ```
 
 ### Sum of total events dimensioned by event category for a date range
-`http://localhost:8080/metrics/totalEvents/eventCategory/FeatureServer/0/query?time=2017-01-01,2018-07-01`
+`http://localhost:8080/google-analytics/totalEvents/eventCategory/FeatureServer/0/query?time=2017-01-01,2018-07-01`
 
 
 Response:
@@ -308,7 +305,7 @@ Response:
 ```
 
 ### Top ten session counts by country for a date range
-`http://localhost:8080/metrics/sessions/country/FeatureServer/0/query?time=2017-01-01,2018-07-01&orderByFields=sessions%20DESC&limit=10`
+`http://localhost:8080/google-analytics/sessions/country/FeatureServer/0/query?time=2017-01-01,2018-07-01&orderByFields=sessions%20DESC&limit=10`
 
 Response:
 ```json
@@ -424,7 +421,7 @@ Response:
 ```
 
 ### Multiple metrics, multiple dimensions
-`http://localhost:8080/metrics/sessions::views/country::eventCategory/FeatureServer/0/query?time=2017-01-01,2018-07-01`
+`http://localhost:8080/google-analytics/sessions::views/country::eventCategory/FeatureServer/0/query?time=2017-01-01,2018-07-01`
 
 ```json
 {
@@ -507,7 +504,7 @@ Response:
 ```
 
 ### Dimension by eventCategory and filter with where
-`http://localhost:8080/metrics/sessions::views/eventCategory/FeatureServer/0/query?where=(country='United States') AND views > 999`
+`http://localhost:8080/google-analytics/sessions::views/eventCategory/FeatureServer/0/query?where=(country='United States') AND views > 999`
 
 ```json
 {

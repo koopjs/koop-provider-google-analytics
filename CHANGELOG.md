@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Changed
+* Removed country geometry feature
+* Remove :host parameter.  Metrics, dimensions, and non-geoservice query options are expected to be delimited in a single `:id` parameter.
+
 ## [1.3.0] - 2020-04-22
 ### Added
 * Backfill option that adds empty rows when multiply dimensions are requested
